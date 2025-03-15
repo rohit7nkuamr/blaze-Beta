@@ -1,0 +1,16 @@
+<!-- HORIZONTAL NAVIGATION BAR -->
+<nav class="horizontal-nav">
+  <div class="nav-container">
+    <a href="#gourmet-burgers" class="horizontal-nav-item active">Gourmet Burgers</a>
+    <span class="nav-separator">·</span>
+    <a href="#wraps" class="horizontal-nav-item">Wraps</a>
+    <span class="nav-separator">·</span>
+    <a href="#sides" class="horizontal-nav-item">Sides</a>
+    <span class="nav-separator">·</span>
+    <a href="#pasta" class="horizontal-nav-item">Pasta</a>
+    <span class="nav-separator">·</span>
+    <a href="#indian" class="horizontal-nav-item">Indian</a>
+    <span class="nav-separator">·</span>
+    <a href="#chinese" class="horizontal-nav-item">Chinese</a>
+  </div>
+</nav>

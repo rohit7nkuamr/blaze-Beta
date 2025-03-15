@@ -1,0 +1,57 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    max-width: 430px; /* Typical phone width */
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #333;
+  }
+  
+  /* Menu Header with Navigation */
+  .menu-header {
+    background: #fff;
+    padding: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .menu-nav {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .menu-nav .nav-link {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #333;
+    flex: 0 0 auto;
+    transition: color 0.3s;
+  }
+  
+  .menu-nav .nav-link.active,
+  .menu-nav .nav-link:hover {
+    color: #e74c3c;
+    font-weight: bold;
+  }
+  
+  /* Menu Content Area */
+  .menu-container {
+    padding: 1rem;
+    overflow-y: auto;
+    height: calc(100vh - 60px); /* Adjust based on header height */
+  }
+  
+  /* Styling for the imported SVG */
+  .menu-svg {
+    width: 100%;
+    height: auto;
+    /* The SVG will take its natural height; if it’s too long, the container will scroll */
+  }
+  

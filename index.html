@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Mobile-friendly scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blaze Web App - SPA</title>
+  <meta name="description" content="Blaze Restaurant - Flavours That Flirt. Gourmet burgers, wraps, pasta and more.">
+  <meta name="msapplication-navbutton-color" content="#9d1c20">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#9d1c20">
+  <!-- Firefox and Opera use CSS-based theming instead of meta tags -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <!-- Preload critical assets -->
+  <link rel="preload" href="styles.css" as="style">
+  <link rel="preload" href="script.js" as="script">
+  <link rel="preload" href="dissolve-animation.js" as="script">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="menu-style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="top-bar">
+    <!-- CLICKABLE LOGO (links to #home) -->
+    <a href="#home" class="logo-link">
+      <img
+        data-src="assets/Blaze PNG 3.svg"
+        alt="Blaze Logo"
+        class="logo"
+        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjOWQxYzIwIi8+PC9zdmc+"
+      />
+    </a>
+
+    <!-- FLAVOURS THAT FLIRT in Beautiful Freak Bold -->
+    <h1 class="title">
+      <span class="dash">-</span>
+      <span class="gold-text">FLAVOURS</span>
+      <span class="black-text">THAT</span>
+      <span class="gold-text">FLIRT</span>
+      <span class="dash">-</span>
+    </h1>
+
+    <!-- HAMBURGER ICON (Opens side nav) -->
+    <div class="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <!-- SCROLLER INSIDE HEADER -->
+    <div class="scroller" data-animated="true">
+      <div class="scroller__inner">
+        <img
+          data-src="assets/moving_frame.svg"
+          alt="Scrolling banner"
+          class="marquee-img"
+          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjOWQxYzIwIi8+PC9zdmc+"
+        />
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDE NAVIGATION -->
+  <nav class="side-nav">
+    <!-- (Removed the hamburger here) -->
+
+    <ul>
+      <li><a href="#home">HOME</a></li>
+      <li><a href="#hours-location">HOURS &amp; LOCATION</a></li>
+      <li><a href="#menu">MENU</a></li>
+      <li><a href="#about">ABOUT</a></li>
+      <li><a href="#order-online">ORDER ONLINE</a></li>
+      <li><a href="#contact">CONTACT</a></li>
+      <li><a href="tel:+919711313434">(+91) 9711313434</a></li>
+    </ul>
+
+    <hr />
+    <div class="nav-spacer"></div>
+
+    <div class="powered-by-container">
+      <img
+        src="assets/powered by.svg"
+        alt="POWERED BY TEAM RENT & RIDE"
+        class="powered-by-img"
+      >
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT AREA (SPA partials load here) -->
+  <main id="app"></main>
+
+  <!-- App Shell Loading Indicator -->
+  <div id="loading-indicator">
+    <div class="loading-spinner"></div>
+  </div>
+  
+  <!-- Scroller Script -->
+  <script src="scroller.js"></script>
+  
+  <!-- This script toggles the side nav from the header hamburger -->
+  <script src="script.js"></script>
+  <script src="dissolve-animation.js"></script>
+  
+  <noscript>
+    <div style="padding: 20px; text-align: center; background-color: #f8d7da; color: #721c24; margin: 20px;">
+      JavaScript is required to use this application. Please enable JavaScript in your browser settings.
+    </div>
+  </noscript>
+</body>
+</html>
