@@ -14,16 +14,16 @@ const routes = {
 
   // Menu pages
   'gourmet-burgers': 'pages/gourmet-burgers.html',
-  wraps: 'pages/wraps.html',
-  sides: 'pages/sides.html',
-  pasta: 'pages/pasta.html',
+  'wraps': 'pages/wraps.html',
+  'sides': 'pages/sides.html',
+  'pasta': 'pages/pasta.html',
   'main-course': 'pages/main-course.html',
-  chinese: 'pages/chinese.html',
+  'chinese': 'pages/chinese.html',
   'og-momos': 'pages/og-momos.html',
   'cold-beverages': 'pages/cold-beverages.html',
   'hot-beverages': 'pages/hot-beverages.html',
-  desserts: 'pages/desserts.html',  // Fixed: Changed from 'deserts' to 'desserts'
-  indian: 'pages/indian.html'  // Fixed: Changed from 'indian' to match case
+  'desserts': 'pages/desserts.html',  // Fixed: Changed from 'deserts' to 'desserts'
+  'indian': 'pages/indian.html'  // Fixed: Changed from 'indian' to match case
 };
 
 // State management for routes
