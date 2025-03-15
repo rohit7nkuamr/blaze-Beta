@@ -8,26 +8,33 @@ function addAnimation() {
   scrollers.forEach(scroller => {
     scroller.setAttribute("data-animated", true);
     
-    // Check if scroller__inner exists, if not create it
-    let scrollerInner = scroller.querySelector(".scroller__inner");
-    if (!scrollerInner) {
-      // Move the content into a scroller__inner div
-      scrollerInner = document.createElement("div");
-      scrollerInner.classList.add("scroller__inner");
-      
-      // Move all children into the inner container
-      while (scroller.firstChild) {
-        scrollerInner.appendChild(scroller.firstChild);
-      }
-      
-      scroller.appendChild(scrollerInner);
-    }
+    const scrollerInner = scroller.querySelector(".scroller__inner");
+    if (!scrollerInner) return;
     
-    // Clone the content for continuous scrolling effect
     const scrollerContent = Array.from(scrollerInner.children);
+    
+    // Duplicate content for smooth infinite scroll
     scrollerContent.forEach(item => {
       const duplicatedItem = item.cloneNode(true);
+      duplicatedItem.setAttribute('aria-hidden', true);
       scrollerInner.appendChild(duplicatedItem);
     });
   });
 }
+
+// Add smooth pause on hover
+scrollers.forEach(scroller => {
+  scroller.addEventListener('mouseenter', () => {
+    const inner = scroller.querySelector('.scroller__inner');
+    if (inner) {
+      inner.style.animationPlayState = 'paused';
+    }
+  });
+  
+  scroller.addEventListener('mouseleave', () => {
+    const inner = scroller.querySelector('.scroller__inner');
+    if (inner) {
+      inner.style.animationPlayState = 'running';
+    }
+  });
+}); // Close the forEach loop

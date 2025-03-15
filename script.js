@@ -67,75 +67,35 @@ function debounce(func, wait) {
 }
 
 function loadContent() {
-  let hash = window.location.hash.slice(1);
-
-  // Default to 'home' if no hash
-  if (!hash) {
-    hash = 'home';
-    window.location.hash = '#home';
-  }
-  
-  // Get the app element
   const appElement = document.getElementById('app');
+  const hash = window.location.hash.slice(1) || 'home';
   
-  // Save scroll position before page change
-  const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-  sessionStorage.setItem('scrollPosition', scrollPosition);
+  // Remove loaded class for transition out
+  appElement.classList.remove('loaded');
   
-  // Fade out effect before loading new content
-  appElement.style.opacity = '0';
-  appElement.style.transform = 'translateY(-50px)';
-
-  // Normal routing with a slight delay for transition
   setTimeout(() => {
     const page = routes[hash] || routes['home'];
-    fetch(page, { cache: 'no-store' }) // Prevent caching issues
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
-        }
-        return response.text();
-      })
+    fetch(page)
+      .then(response => response.text())
       .then(html => {
         appElement.innerHTML = html;
         
-        // Reset opacity and transform for fade-in effect
+        // Add loaded class for transition in
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            appElement.style.opacity = '1';
-            appElement.style.transform = 'translateY(0)';
-          });
+          appElement.classList.add('loaded');
         });
         
-        setActiveLink(hash);
+        // Initialize smooth scrolling for all internal links
+        initSmoothScrolling();
+        
+        // Handle image loading
+        handleImageLoading();
+        
+        // Initialize other components
+        setupLazyLoadingIframes();
         updateHorizontalNav();
-        
-        // Fix SVG paths to ensure they load correctly
-        fixSvgPaths();
-        
-        // Adjust SVG images if they exist
-        adjustSvgImages();
-        // Call preloadImages to ensure SVGs are loaded properly
-        preloadImages();
-        setupLazyLoadingIframes(); // Call lazy loading setup after page load
-        
-        // Restore scroll position if needed
-        if (hash === 'home') {
-          window.scrollTo(0, 0);
-        } else {
-          const savedPosition = sessionStorage.getItem('scrollPosition');
-          if (savedPosition) {
-            window.scrollTo(0, parseInt(savedPosition));
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Error loading page:', error);
-        appElement.innerHTML = '<p>Page not found. <a href="#home">Return to Home</a></p>';
-        appElement.style.opacity = '1';
-        appElement.style.transform = 'translateY(0)';
       });
-  }, 100);
+  }, 300); // Match transition duration
 }
 
 // Function to fix SVG paths to ensure they load correctly
@@ -1069,3 +1029,98 @@ function applyScrollbarHiding() {
 }
 
 // Scroller functionality moved to scroller.js
+// Add smooth image loading
+function handleImageLoading() {
+  const images = document.querySelectorAll('img[data-src]');
+  
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src;
+        img.addEventListener('load', () => {
+          img.classList.add('loaded');
+        });
+        observer.unobserve(img);
+      }
+    });
+  });
+
+  images.forEach(img => imageObserver.observe(img));
+}
+
+// Smooth page transitions
+function loadContent() {
+  const appElement = document.getElementById('app');
+  const hash = window.location.hash.slice(1) || 'home';
+  
+  // Remove loaded class for transition out
+  appElement.classList.remove('loaded');
+  
+  setTimeout(() => {
+    const page = routes[hash] || routes['home'];
+    fetch(page)
+      .then(response => response.text())
+      .then(html => {
+        appElement.innerHTML = html;
+        
+        // Add loaded class for transition in
+        requestAnimationFrame(() => {
+          appElement.classList.add('loaded');
+        });
+        
+        // Initialize smooth scrolling for all internal links
+        initSmoothScrolling();
+        
+        // Handle image loading
+        handleImageLoading();
+        
+        // Initialize other components
+        setupLazyLoadingIframes();
+        updateHorizontalNav();
+      });
+  }, 300); // Match transition duration
+}
+
+// Smooth scrolling for internal links
+function initSmoothScrolling() {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+}
+
+// Optimize scroll performance
+function optimizeScroll() {
+  let ticking = false;
+  
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        // Your scroll handlers here
+        updateHorizontalNav();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadContent();
+  initSmoothScrolling();
+  optimizeScroll();
+  handleImageLoading();
+  
+  // Enable smooth navigation
+  enableHapticScrollFeedback();
+});
