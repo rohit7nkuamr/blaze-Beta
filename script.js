@@ -66,9 +66,16 @@ function debounce(func, wait) {
   };
 }
 
+let currentHash = '';  // Add this at the top with other variables
+
 function loadContent() {
   const appElement = document.getElementById('app');
   const hash = window.location.hash.slice(1) || 'home';
+  
+  // Prevent reloading the same page
+  if (hash === currentHash) {
+    return;
+  }
   
   // Prevent unwanted redirects
   if (!routes[hash]) {
@@ -76,6 +83,9 @@ function loadContent() {
     window.location.hash = 'home';
     return;
   }
+  
+  // Store the current hash
+  currentHash = hash;
   
   // Remove loaded class for transition out
   appElement.classList.remove('loaded');
@@ -87,7 +97,13 @@ function loadContent() {
     // Check if the hash hasn't changed during the timeout
     if (currentPage === window.location.hash.slice(1)) {
       const page = routes[hash];
-      fetch(page)
+      fetch(page, {
+        // Add cache control
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
         .then(response => {
           if (!response.ok) {
             throw new Error(`Failed to load ${page}`);
@@ -112,13 +128,17 @@ function loadContent() {
             
             // Ensure the correct active state in navigation
             setActiveNavItem(hash);
+            
+            // Store last successful navigation
+            sessionStorage.setItem('lastValidRoute', hash);
           }
         })
         .catch(error => {
           console.error('Page load failed:', error);
-          // Optionally redirect to home on error
-          if (hash !== 'home') {
-            window.location.hash = 'home';
+          // Restore last known good route
+          const lastValidRoute = sessionStorage.getItem('lastValidRoute') || 'home';
+          if (hash !== lastValidRoute) {
+            window.location.hash = lastValidRoute;
           }
         });
     }
@@ -127,21 +147,17 @@ function loadContent() {
 
 // Add this new function to ensure correct navigation state
 function setActiveNavItem(hash) {
-  // Update horizontal navigation
-  const horizontalNavItems = document.querySelectorAll('.horizontal-nav-item');
-  horizontalNavItems.forEach(item => {
-    const itemHash = item.getAttribute('href').substring(1);
-    if (itemHash === hash) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
+  requestAnimationFrame(() => {
+    const horizontalNavItems = document.querySelectorAll('.horizontal-nav-item');
+    horizontalNavItems.forEach(item => {
+      const itemHash = item.getAttribute('href').substring(1);
+      if (itemHash === hash) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
   });
-  
-  // Update the URL only if necessary
-  if (window.location.hash !== `#${hash}`) {
-    history.replaceState(null, '', `#${hash}`);
-  }
 }
 
 // Function to fix SVG paths to ensure they load correctly
@@ -1087,6 +1103,21 @@ function loadContent() {
   const appElement = document.getElementById('app');
   const hash = window.location.hash.slice(1) || 'home';
   
+  // Prevent reloading the same page
+  if (hash === currentHash) {
+    return;
+  }
+  
+  // Prevent unwanted redirects
+  if (!routes[hash]) {
+    console.warn(`Route "${hash}" not found, defaulting to home`);
+    window.location.hash = 'home';
+    return;
+  }
+  
+  // Store the current hash
+  currentHash = hash;
+  
   // Remove loaded class for transition out
   appElement.classList.remove('loaded');
   
@@ -1097,7 +1128,13 @@ function loadContent() {
     // Check if the hash hasn't changed during the timeout
     if (currentPage === window.location.hash.slice(1)) {
       const page = routes[hash];
-      fetch(page)
+      fetch(page, {
+        // Add cache control
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
         .then(response => {
           if (!response.ok) {
             throw new Error(`Failed to load ${page}`);
@@ -1122,13 +1159,17 @@ function loadContent() {
             
             // Ensure the correct active state in navigation
             setActiveNavItem(hash);
+            
+            // Store last successful navigation
+            sessionStorage.setItem('lastValidRoute', hash);
           }
         })
         .catch(error => {
           console.error('Page load failed:', error);
-          // Optionally redirect to home on error
-          if (hash !== 'home') {
-            window.location.hash = 'home';
+          // Restore last known good route
+          const lastValidRoute = sessionStorage.getItem('lastValidRoute') || 'home';
+          if (hash !== lastValidRoute) {
+            window.location.hash = lastValidRoute;
           }
         });
     }
@@ -1137,21 +1178,17 @@ function loadContent() {
 
 // Add this new function to ensure correct navigation state
 function setActiveNavItem(hash) {
-  // Update horizontal navigation
-  const horizontalNavItems = document.querySelectorAll('.horizontal-nav-item');
-  horizontalNavItems.forEach(item => {
-    const itemHash = item.getAttribute('href').substring(1);
-    if (itemHash === hash) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
+  requestAnimationFrame(() => {
+    const horizontalNavItems = document.querySelectorAll('.horizontal-nav-item');
+    horizontalNavItems.forEach(item => {
+      const itemHash = item.getAttribute('href').substring(1);
+      if (itemHash === hash) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
   });
-  
-  // Update the URL only if necessary
-  if (window.location.hash !== `#${hash}`) {
-    history.replaceState(null, '', `#${hash}`);
-  }
 }
 
 // Smooth scrolling for internal links
@@ -1195,4 +1232,48 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Enable smooth navigation
   enableHapticScrollFeedback();
+});
+
+// Add this function to handle navigation clicks
+function handleNavClick(event) {
+  const link = event.target.closest('.horizontal-nav-item');
+  if (link) {
+    event.preventDefault();
+    const href = link.getAttribute('href');
+    const targetRoute = href.substring(1); // Remove the #
+    
+    if (routes[targetRoute]) {
+      window.location.hash = targetRoute;
+    }
+  }
+}
+
+// Initialize navigation handling
+document.addEventListener('DOMContentLoaded', () => {
+  loadContent();
+  
+  // Add click handler for navigation
+  document.addEventListener('click', handleNavClick);
+  
+  // Store initial route
+  const initialHash = window.location.hash.slice(1) || 'home';
+  if (routes[initialHash]) {
+    sessionStorage.setItem('lastValidRoute', initialHash);
+  }
+});
+
+// Modify the hashchange event listener
+window.removeEventListener('hashchange', loadContent); // Remove any existing listeners
+window.addEventListener('hashchange', (event) => {
+  event.preventDefault();
+  const newHash = window.location.hash.slice(1);
+  
+  // Prevent navigation to invalid routes
+  if (!routes[newHash]) {
+    const lastValidRoute = sessionStorage.getItem('lastValidRoute') || 'home';
+    window.location.hash = lastValidRoute;
+    return;
+  }
+  
+  loadContent();
 });
