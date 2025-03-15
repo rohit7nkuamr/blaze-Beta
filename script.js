@@ -33,7 +33,11 @@ const routeState = {
 };
 
 function loadContent(forcedHash = null) {
-  const hash = forcedHash || window.location.hash.slice(1) || 'home';
+  // If the argument is an event, get the hash from window.location
+  const hash = (forcedHash && typeof forcedHash === 'string') 
+    ? forcedHash 
+    : window.location.hash.slice(1) || 'home';
+  
   const appElement = document.getElementById('app');
   
   if (!appElement) {
@@ -92,6 +96,19 @@ function loadContent(forcedHash = null) {
         window.location.hash = 'home';
       }
     });
+}
+
+function updateHorizontalNav() {
+  const horizontalNav = document.querySelector('.horizontal-nav');
+  if (!horizontalNav) return;
+
+  const navItems = horizontalNav.querySelectorAll('.horizontal-nav-item');
+  const currentHash = window.location.hash.slice(1) || 'home';
+
+  navItems.forEach(item => {
+    const href = item.getAttribute('href').slice(1);
+    item.classList.toggle('active', href === currentHash);
+  });
 }
 
 function initializePageComponents(hash) {
