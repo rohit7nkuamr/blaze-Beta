@@ -390,44 +390,31 @@ function setupLazyLoadingIframes() {
 
 // Preload images for faster loading
 function preloadImages() {
-  // First handle images with data-src attribute (lazy loading)
-  const lazyImages = document.querySelectorAll('img[data-src]');
-  if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.removeAttribute('data-src');
-          imageObserver.unobserve(img);
+  // Create Intersection Observer for SVGs
+  const svgObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const svg = entry.target;
+        if (svg.dataset.src) {
+          svg.src = svg.dataset.src;
+          svg.removeAttribute('data-src');
+          svgObserver.unobserve(svg);
         }
-      });
+      }
     });
-    
-    lazyImages.forEach(image => imageObserver.observe(image));
-  } else {
-    // Fallback for browsers that don't support IntersectionObserver
-    lazyImages.forEach(image => {
-      image.src = image.dataset.src;
-      image.removeAttribute('data-src');
-    });
-  }
-  
-  // Now handle all menu SVGs to ensure they load properly
-  const menuSvgs = document.querySelectorAll('.menu-svg');
-  menuSvgs.forEach(svg => {
-    // Force reload the image by setting the same src
+  }, {
+    rootMargin: '50px 0px', // Start loading when SVG is 50px from viewport
+    threshold: 0.1
+  });
+
+  // Convert all SVG images to lazy load
+  const svgImages = document.querySelectorAll('.menu-svg, img[src$=".svg"]');
+  svgImages.forEach(svg => {
     const currentSrc = svg.getAttribute('src');
     if (currentSrc) {
-      // Create a new image to preload
-      const img = new Image();
-      img.onload = function() {
-        // Once loaded, update the original image if needed
-        if (!svg.complete || svg.naturalWidth === 0) {
-          svg.src = currentSrc;
-        }
-      };
-      img.src = currentSrc;
+      svg.setAttribute('data-src', currentSrc);
+      svg.removeAttribute('src');
+      svgObserver.observe(svg);
     }
   });
 }

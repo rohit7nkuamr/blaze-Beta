@@ -46,6 +46,10 @@ const urlsToCache = [
   './assets/menu/INDIAN.svg'
 ];
 
+// Cache SVG files separately with a longer expiration
+const SVG_CACHE_NAME = 'blaze-svg-cache-v1';
+const SVG_CACHE_DURATION = 30 * 24 * 60 * 60; // 30 days in seconds
+
 // Install event - cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -71,42 +75,68 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  // Clean up old SVG caches periodically
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName.startsWith('blaze-svg-cache-') && cacheName !== SVG_CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
 });
 
 // Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        
-        // Clone the request because it's a one-time use stream
-        const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(response => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+  if (event.request.url.endsWith('.svg')) {
+    event.respondWith(
+      caches.open(SVG_CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(response => {
+          const fetchPromise = fetch(event.request).then(networkResponse => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+          return response || fetchPromise;
+        });
+      })
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          // Cache hit - return response
+          if (response) {
             return response;
           }
           
-          // Clone the response because it's a one-time use stream
-          const responseToCache = response.clone();
+          // Clone the request because it's a one-time use stream
+          const fetchRequest = event.request.clone();
           
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              // Don't cache if it's an API call or external resource
-              if (event.request.url.indexOf('http') === 0) {
-                cache.put(event.request, responseToCache);
-              }
-            });
+          return fetch(fetchRequest).then(response => {
+            // Check if we received a valid response
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
             
-          return response;
-        });
-      })
-  );
+            // Clone the response because it's a one-time use stream
+            const responseToCache = response.clone();
+            
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                // Don't cache if it's an API call or external resource
+                if (event.request.url.indexOf('http') === 0) {
+                  cache.put(event.request, responseToCache);
+                }
+              });
+              
+            return response;
+          });
+        })
+    );
+  }
 });
 
 // Handle background sync for offline actions
