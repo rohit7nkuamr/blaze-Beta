@@ -92,10 +92,15 @@
   </nav>
 
   <!-- MAIN CONTENT AREA (SPA partials load here) -->
-  <main id="app"></main>
+  <main id="app">
+    <!-- Initial loading state -->
+    <div class="loading-state">
+      Loading...
+    </div>
+  </main>
 
   <!-- App Shell Loading Indicator -->
-  <div id="loading-indicator">
+  <div id="loading-indicator" style="display: none;">
     <div class="loading-spinner"></div>
   </div>
   
@@ -103,6 +108,22 @@
   <script src="scroller.js"></script>
   
   <!-- This script toggles the side nav from the header hamburger -->
+  <script src="script.js"></script>
+  <script src="dissolve-animation.js"></script>
+  
+  <!-- Scripts -->
+  <script>
+    // Fallback if JavaScript fails to load
+    window.addEventListener('error', function(e) {
+      if (e.target.tagName === 'SCRIPT') {
+        document.getElementById('app').innerHTML = `
+          <div style="padding: 20px; text-align: center;">
+            Failed to load application. Please refresh the page.
+          </div>
+        `;
+      }
+    }, true);
+  </script>
   <script src="script.js"></script>
   <script src="dissolve-animation.js"></script>
   
