@@ -1,5 +1,7 @@
 // Service Worker for Blaze Restaurant Website
-const CACHE_NAME = 'blaze-restaurant-cache-v1';
+const CACHE_VERSION = 'v1';
+const STATIC_CACHE_NAME = `static-${CACHE_VERSION}`;
+const SVG_CACHE_NAME = `svg-${CACHE_VERSION}`;
 const urlsToCache = [
   './index.html',
   './pages/menu.html',
@@ -47,23 +49,33 @@ const urlsToCache = [
 ];
 
 // Cache SVG files separately with a longer expiration
-const SVG_CACHE_NAME = 'blaze-svg-cache-v1';
 const SVG_CACHE_DURATION = 30 * 24 * 60 * 60; // 30 days in seconds
 
 // Install event - cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
+      })
+  );
+  // Preload critical SVGs
+  event.waitUntil(
+    caches.open(SVG_CACHE_NAME)
+      .then(cache => {
+        return cache.addAll([
+          './assets/Blaze PNG 3.svg',
+          './assets/About.svg',
+          // Add other critical SVGs here
+        ]);
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
+  const cacheWhitelist = [STATIC_CACHE_NAME, SVG_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -93,15 +105,23 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.url.endsWith('.svg')) {
     event.respondWith(
-      caches.open(SVG_CACHE_NAME).then(cache => {
-        return cache.match(event.request).then(response => {
-          const fetchPromise = fetch(event.request).then(networkResponse => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-          return response || fetchPromise;
-        });
-      })
+      caches.open(SVG_CACHE_NAME)
+        .then(cache => {
+          return cache.match(event.request)
+            .then(response => {
+              if (response) {
+                // Return cached SVG
+                return response;
+              }
+
+              return fetch(event.request)
+                .then(networkResponse => {
+                  // Cache copy of the SVG
+                  cache.put(event.request, networkResponse.clone());
+                  return networkResponse;
+                });
+            });
+        })
     );
   } else {
     event.respondWith(
@@ -124,7 +144,7 @@ self.addEventListener('fetch', event => {
             // Clone the response because it's a one-time use stream
             const responseToCache = response.clone();
             
-            caches.open(CACHE_NAME)
+            caches.open(STATIC_CACHE_NAME)
               .then(cache => {
                 // Don't cache if it's an API call or external resource
                 if (event.request.url.indexOf('http') === 0) {

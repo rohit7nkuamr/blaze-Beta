@@ -8,11 +8,7 @@ const routes = {
   about: 'pages/about.html',
   'order-online': 'pages/order-online.html',
   contact: 'pages/contact.html',
-
-  // The "menu" route
   menu: 'pages/menu.html',
-
-  // Menu pages
   'gourmet-burgers': 'pages/gourmet-burgers.html',
   'wraps': 'pages/wraps.html',
   'sides': 'pages/sides.html',
@@ -22,8 +18,8 @@ const routes = {
   'og-momos': 'pages/og-momos.html',
   'cold-beverages': 'pages/cold-beverages.html',
   'hot-beverages': 'pages/hot-beverages.html',
-  'desserts': 'pages/desserts.html',  // Fixed: Changed from 'deserts' to 'desserts'
-  'indian': 'pages/indian.html'  // Fixed: Changed from 'indian' to match case
+  'desserts': 'pages/desserts.html',
+  'indian': 'pages/indian.html'
 };
 
 // State management for routes
@@ -94,7 +90,7 @@ function loadContent(forcedHash = null) {
   debugLog('Attempting to load content for hash:', hash);
 
   // Validate route
-  if (!isValidRoute(hash)) {
+  if (!routes[hash]) {
     debugLog('Invalid route detected:', hash);
     window.location.hash = routeState.lastValidHash || 'home';
     return;
@@ -208,7 +204,7 @@ function handleNavigation(event) {
     return;
   }
 
-  if (!isValidRoute(hash)) {
+  if (!routes[hash]) {
     debugLog('Invalid route in navigation:', hash);
     event.preventDefault();
     window.location.hash = routeState.lastValidHash || 'home';
